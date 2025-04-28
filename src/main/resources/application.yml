@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application.name: BankingManagementSystem
+  datasource:
+    url: jdbc:mysql://localhost:3306/banking_management?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 14031988
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  liquibase:
+    enabled: false
+    change-log: classpath:/resources/db.changelog-master.yaml
