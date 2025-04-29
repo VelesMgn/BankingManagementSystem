@@ -1,10 +1,13 @@
 package org.example.bankingmanagementsystem.controllers;
 
+import org.example.bankingmanagementsystem.dto.JwtRequestDto;
+import org.example.bankingmanagementsystem.dto.JwtResponseDto;
 import org.example.bankingmanagementsystem.dto.RegistrationResponseDto;
 import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
 import org.example.bankingmanagementsystem.exception.GlobalExceptionHandler;
 import org.example.bankingmanagementsystem.exception.UserAlreadyExistsException;
 import org.example.bankingmanagementsystem.exception.ValidationException;
+import org.example.bankingmanagementsystem.service.AuthService;
 import org.example.bankingmanagementsystem.service.RegistrationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,6 +31,9 @@ class InputControllerTest {
 
     @Mock
     private RegistrationService registrationService;
+
+    @Mock
+    private AuthService authService;
 
     @InjectMocks
     private InputController inputController;
@@ -142,5 +149,28 @@ class InputControllerTest {
                 )
         );
         return new MethodArgumentNotValidException(null, bindingResult);
+    }
+
+    @Test
+    void authorization_Success() {
+        JwtRequestDto request = new JwtRequestDto("test@mail.com", "password");
+        JwtResponseDto mockResponse = new JwtResponseDto("mocked.jwt.token");
+
+        when(authService.authenticateUser(request)).thenReturn(mockResponse);
+
+        ResponseEntity<?> response = inputController.authorization(request);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockResponse, response.getBody());
+    }
+
+    @Test
+    void authorization_Failure_BadCredentials() {
+        JwtRequestDto request = new JwtRequestDto("wrong@mail.com", "wrongpass");
+
+        when(authService.authenticateUser(request))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+        assertThrows(BadCredentialsException.class, () -> inputController.authorization(request));
     }
 }

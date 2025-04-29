@@ -76,14 +76,4 @@ public class JwtTokenUtils {
             throw new IllegalStateException("JWT secret too short. Minimum 64 characters required.");
         }
     }
-
-    private boolean isTokenExpired(String token) {
-        final Date expiration = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expiration.before(new Date());
-    }
 }

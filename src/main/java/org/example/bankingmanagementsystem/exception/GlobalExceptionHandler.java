@@ -2,7 +2,10 @@ package org.example.bankingmanagementsystem.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.bankingmanagementsystem.dto.RegistrationResponseDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +16,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<AppError> handleUserNotFound(UsernameNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new AppError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<AppError> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new AppError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RegistrationResponseDto> handleValidationExceptions(MethodArgumentNotValidException ex) {

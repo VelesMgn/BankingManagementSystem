@@ -1,18 +1,13 @@
 package org.example.bankingmanagementsystem.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.Date;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AppError {
-    private int status;
+    private int statusCode;
     private String message;
-    private Date timestamp;
-
-    public AppError(int status, String message) {
-        this.status = status;
-        this.message = message;
-        this.timestamp = new Date();
-    }
 }

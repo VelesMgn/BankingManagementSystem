@@ -15,8 +15,8 @@ spring:
       ddl-auto: update
     show-sql: false
   liquibase:
-    enabled: false
-    change-log: classpath:/resources/db.changelog-master.yaml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
 
 jwt:
   secret: ${JWT_SECRET}
