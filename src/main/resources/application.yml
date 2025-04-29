@@ -3,10 +3,12 @@ server:
 
 spring:
   application.name: BankingManagementSystem
+  config:
+    import: classpath:config.yml
   datasource:
     url: jdbc:mysql://localhost:3306/banking_management?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: 14031988
+    username: ${DB_NAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -17,5 +19,10 @@ spring:
     change-log: classpath:/resources/db.changelog-master.yaml
 
 jwt:
-  secret: "your-512-bit-secret-base64-encoded"
-  expiration_time: 86400000 # 24 hours
+  secret: ${JWT_SECRET}
+  expiration_time: ${JWT_TIME}
+
+admin:
+  mail: ${ADMIN_MAIL}
+  password: ${ADMIN_PASSWORD}
+  name: ${ADMIN_NAME}

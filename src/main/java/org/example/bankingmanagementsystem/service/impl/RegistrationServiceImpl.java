@@ -8,6 +8,7 @@ import org.example.bankingmanagementsystem.exception.UserAlreadyExistsException;
 import org.example.bankingmanagementsystem.exception.ValidationException;
 import org.example.bankingmanagementsystem.service.RegistrationService;
 import org.example.bankingmanagementsystem.service.database.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,16 +16,17 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RegistrationServiceImpl implements RegistrationService {
+    public class RegistrationServiceImpl implements RegistrationService {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     public RegistrationResponseDto registerNewUser(UserRegistrationDto dto) {
         validateBusinessRules(dto);
         validatePassword(dto);
 
-        userService.saveUserInDb(dto);
+        userService.saveUserInDb(dto, passwordEncoder);
 
-        String message = String.format("User with email: %s created", dto.getEmail());
+        String message = String.format("User with email: %s created", dto.getMail());
         log.info(message);
         return new RegistrationResponseDto(true, message);
     }
@@ -32,14 +34,14 @@ public class RegistrationServiceImpl implements RegistrationService {
     private void validatePassword(UserRegistrationDto dto) { // Упрощенная версия
         String password = dto.getPassword();
 
-        if (password.equalsIgnoreCase(dto.getUserName())) {
+        if (password.equalsIgnoreCase(dto.getName())) {
             String message = "Password cannot be your username";
             log.warn(message);
             throw new ValidationException(message);
         }
 
-        if (password.equalsIgnoreCase(dto.getEmail()) ||
-                password.equalsIgnoreCase(dto.getEmail().split("@")[0])) {
+        if (password.equalsIgnoreCase(dto.getMail()) ||
+                password.equalsIgnoreCase(dto.getMail().split("@")[0])) {
             String message = "The password cannot be your email address";
             log.warn(message);
             throw new ValidationException(message);
@@ -62,17 +64,17 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     private void validateBusinessRules(UserRegistrationDto dto) { // Упрощенная версия
-        if (userService.mailIsPresent(dto.getEmail())) {
-            log.warn("User already exists with email: {}", dto.getEmail());
-            throw new UserAlreadyExistsException(dto.getEmail());
+        if (userService.mailIsPresent(dto.getMail())) {
+            log.warn("User already exists with email: {}", dto.getMail());
+            throw new UserAlreadyExistsException(dto.getMail());
         }
 
-        if (userService.nameIsPresent(dto.getUserName())) {
-            log.warn("User already exists with name: {}", dto.getUserName());
-            throw new UserAlreadyExistsException(dto.getUserName());
+        if (userService.nameIsPresent(dto.getName())) {
+            log.warn("User already exists with name: {}", dto.getName());
+            throw new UserAlreadyExistsException(dto.getName());
         }
 
-        if (dto.getUserName().toLowerCase().contains("admin")) {
+        if (dto.getName().toLowerCase().contains("admin")) {
             String message = "Username cannot contain 'admin'";
             log.warn(message);
             throw new ValidationException(message);
