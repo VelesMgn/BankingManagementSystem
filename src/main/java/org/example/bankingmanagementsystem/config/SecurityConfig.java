@@ -2,7 +2,7 @@ package org.example.bankingmanagementsystem.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.service.database.UserService;
+import org.example.bankingmanagementsystem.service.database.UserDatabaseService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -31,7 +31,7 @@ import java.util.List;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
-    private final UserService userService;
+    private final UserDatabaseService userService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -77,10 +77,19 @@ public class SecurityConfig {
                 .sessionManagement(smc
                         -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/registration").permitAll()
-                        .requestMatchers("/api/authorization").permitAll()
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/api/registration",
+                                "/api/authorization",
+
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
+                        .requestMatchers("/api/cards/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/cards/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions

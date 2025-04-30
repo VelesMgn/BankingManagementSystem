@@ -1,0 +1,156 @@
+openapi: 3.0.1
+info:
+  title: API аутентификации пользователей
+  description: API для регистрации и аутентификации пользователей с использованием JWT
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер
+tags:
+  - name: Аутентификация
+    description: Операции для входа пользователя
+  - name: Регистрация
+    description: Операции для регистрации новых пользователей
+
+paths:
+  /api/registration:
+    post:
+      tags:
+        - Регистрация
+      summary: Регистрация нового пользователя
+      description: Создает нового пользователя в системе
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationDto'
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponseDto'
+        '400':
+          description: Неверный запрос (ошибки валидации или пользователь уже существует)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponseDto'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationResponseDto'
+
+  /api/authorization:
+    post:
+      tags:
+        - Аутентификация
+      summary: Аутентификация пользователя
+      description: Аутентифицирует пользователя и возвращает JWT токен
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequestDto'
+      responses:
+        '200':
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDto'
+        '401':
+          description: Неавторизован (неверные учетные данные или пользователь не найден)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppError'
+
+components:
+  schemas:
+    UserRegistrationDto:
+      type: object
+      required:
+        - mail
+        - password
+        - name
+      properties:
+        mail:
+          type: string
+          format: email
+          description: Электронная почта пользователя
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          description: Пароль пользователя (6-50 символов)
+          example: securePassword123
+          minLength: 6
+          maxLength: 50
+        name:
+          type: string
+          description: Имя пользователя (2-50 символов)
+          example: Ivan Ivanov
+          minLength: 2
+          maxLength: 50
+
+    RegistrationResponseDto:
+      type: object
+      properties:
+        result:
+          type: boolean
+          description: Результат операции
+          example: true
+        message:
+          type: string
+          description: Сообщение о результате
+          example: "User with email: user@example.com created"
+
+    JwtRequestDto:
+      type: object
+      required:
+        - mail
+        - password
+      properties:
+        mail:
+          type: string
+          format: email
+          description: Электронная почта пользователя
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          description: Пароль пользователя
+          example: securePassword123
+
+    JwtResponseDto:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT токен для аутентификации
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    AppError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          description: Код статуса HTTP
+          example: 401
+        message:
+          type: string
+          description: Сообщение об ошибке
+          example: "Invalid username or password"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Введите JWT токен в формате 'Bearer {token}'

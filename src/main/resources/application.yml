@@ -18,9 +18,18 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
 
+springdoc:
+  cache:
+    disabled: true
+  swagger-ui:
+    enabled: true
+
 jwt:
   secret: ${JWT_SECRET}
   expiration_time: ${JWT_TIME}
+
+encryption:
+  key: ${ENCRYPTION_KEY}
 
 admin:
   mail: ${ADMIN_MAIL}

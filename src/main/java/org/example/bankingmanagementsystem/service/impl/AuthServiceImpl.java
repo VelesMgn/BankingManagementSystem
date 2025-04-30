@@ -6,7 +6,7 @@ import org.example.bankingmanagementsystem.dto.JwtRequestDto;
 import org.example.bankingmanagementsystem.dto.JwtResponseDto;
 import org.example.bankingmanagementsystem.repository.UserRepository;
 import org.example.bankingmanagementsystem.service.AuthService;
-import org.example.bankingmanagementsystem.service.database.UserService;
+import org.example.bankingmanagementsystem.service.database.UserDatabaseService;
 import org.example.bankingmanagementsystem.utils.JwtTokenUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
+    private final UserDatabaseService userService;
     private final JwtTokenUtils jwtTokenUtils;
     private final UserRepository userRepository;
 

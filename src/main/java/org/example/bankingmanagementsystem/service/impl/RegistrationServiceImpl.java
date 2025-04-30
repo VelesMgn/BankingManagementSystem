@@ -6,8 +6,9 @@ import org.example.bankingmanagementsystem.dto.RegistrationResponseDto;
 import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
 import org.example.bankingmanagementsystem.exception.UserAlreadyExistsException;
 import org.example.bankingmanagementsystem.exception.ValidationException;
+import org.example.bankingmanagementsystem.model.enums.Role;
 import org.example.bankingmanagementsystem.service.RegistrationService;
-import org.example.bankingmanagementsystem.service.database.UserService;
+import org.example.bankingmanagementsystem.service.database.UserDatabaseService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
     public class RegistrationServiceImpl implements RegistrationService {
-    private final UserService userService;
+    private final UserDatabaseService userService;
     private final PasswordEncoder passwordEncoder;
 
     public RegistrationResponseDto registerNewUser(UserRegistrationDto dto) {
         validateBusinessRules(dto);
         validatePassword(dto);
 
-        userService.saveUserInDb(dto, passwordEncoder);
+        String password = dto.getPassword();
+        String email = dto.getMail();
+        String name = dto.getName();
+
+        userService.saveUserInDb(email, name, password, Role.ROLE_USER, passwordEncoder);
 
         String message = String.format("User with email: %s created", dto.getMail());
         log.info(message);

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -148,7 +149,7 @@ class InputControllerTest {
                         new FieldError("object", "password", messages[1])
                 )
         );
-        return new MethodArgumentNotValidException(null, bindingResult);
+        return new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
     }
 
     @Test

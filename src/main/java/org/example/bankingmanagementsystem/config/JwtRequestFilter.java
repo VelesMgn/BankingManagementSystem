@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.service.database.UserService;
+import org.example.bankingmanagementsystem.service.database.UserDatabaseService;
 import org.example.bankingmanagementsystem.utils.JwtTokenUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
-    private final UserService userService;
+    private final UserDatabaseService userService;
     private final JwtTokenUtils jwt;
 
     @Override
@@ -38,6 +38,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (JwtException | IllegalArgumentException e) {
+            log.error(e.getMessage());
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid JWT token");
             return;
         }
