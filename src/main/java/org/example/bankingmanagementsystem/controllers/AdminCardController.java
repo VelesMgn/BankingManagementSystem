@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.bankingmanagementsystem.dto.card.BankCardRequestDto;
 import org.example.bankingmanagementsystem.dto.card.BankCardResponseDto;
+import org.example.bankingmanagementsystem.model.enums.BankCardStatus;
 import org.example.bankingmanagementsystem.service.AdminCardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,37 @@ public class AdminCardController {
     @GetMapping("/get-all")
     public ResponseEntity<Page<BankCardResponseDto>> getAllCards(
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "10") @Min(1) int size) {
-        log.info("Admin requested all cards, page {}, size {}", page, size);
-        return ResponseEntity.ok(cardService.getAllCards(page, size));
+            @RequestParam(defaultValue = "10") @Min(1) int size,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) BankCardStatus status) {
+        log.info("Admin requested all cards, page {}, size {}, userId {}, status {}",
+                page, size, userId, status);
+        return ResponseEntity.ok(cardService.getAllCards(page, size, userId, status));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<BankCardResponseDto> createCard(@Valid @RequestBody BankCardRequestDto dto) {
+        log.info("Admin creating new card for user {}", dto.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(dto));
+    }
+
+    @PatchMapping("/{cardId}/block")
+    public ResponseEntity<BankCardResponseDto> blockCard(@PathVariable Long cardId) {
+        log.info("Admin blocking card {}", cardId);
+        return ResponseEntity.ok(cardService.changeCardStatus(cardId, BankCardStatus.BLOCKED));
+    }
+
+    @PatchMapping("/{cardId}/activate")
+    public ResponseEntity<BankCardResponseDto> activateCard(@PathVariable Long cardId) {
+        log.info("Admin activating card {}", cardId);
+        return ResponseEntity.ok(cardService.changeCardStatus(cardId, BankCardStatus.ACTIVE));
+    }
+
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<Void> deleteCard(@PathVariable Long cardId) {
+        log.info("Admin deleting card {}", cardId);
+        cardService.deleteCard(cardId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

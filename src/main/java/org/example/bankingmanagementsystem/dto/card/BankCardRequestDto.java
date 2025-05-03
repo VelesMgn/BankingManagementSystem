@@ -2,18 +2,12 @@ package org.example.bankingmanagementsystem.dto.card;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.hibernate.validator.constraints.CreditCardNumber;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 public class BankCardRequestDto {
-    @NotBlank(message = "Card number cannot be empty")
-    @CreditCardNumber(message = "Invalid card number")
-    private String cardNumber;
-
-    @NotNull(message = "Expiry date cannot be null")
     @Future(message = "Expiry date must be in the future")
     private LocalDate expiryDate;
 

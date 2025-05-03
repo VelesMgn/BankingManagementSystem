@@ -52,14 +52,14 @@ public class AdminUserController {
 
     @GetMapping("/by-username")
     public UserResponseDto getUserByUsername(@RequestParam @NotBlank(message = "Username cannot be empty")
-                                                 @Size(min = 2, max = 50,
-                                                         message = "Username must be between 2 and 50 characters")
-                                                 String username) {
+                                             @Size(min = 2, max = 50,
+                                                     message = "Username must be between 2 and 50 characters")
+                                             String username) {
         log.info("Admin requested user with username: {}", username);
         return adminUserService.getUserByUsername(username);
     }
 
-    @PostMapping("/create-аdmin")
+    @PostMapping("/create-admin")
     public ResponseEntity<UserResponseDto> createAdmin(@Valid @RequestBody UserRegistrationDto dto) {
         log.info("Admin creating new admin user");
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -68,7 +68,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable @Min(value = 1, message = "Id must be positive")
-                                                          Long id, @Valid @RequestBody UpdateUserDto dto) {
+                                                      Long id, @Valid @RequestBody UpdateUserDto dto) {
         log.info("Admin updating user with id: {}", id);
         return ResponseEntity.ok(adminUserService.updateUser(id, dto));
     }
