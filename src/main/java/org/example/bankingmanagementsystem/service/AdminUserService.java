@@ -1,8 +1,8 @@
 package org.example.bankingmanagementsystem.service;
 
-import org.example.bankingmanagementsystem.dto.UpdateUserDto;
-import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
-import org.example.bankingmanagementsystem.dto.UserResponseDto;
+import org.example.bankingmanagementsystem.dto.user.UpdateUserDto;
+import org.example.bankingmanagementsystem.dto.user.UserRegistrationDto;
+import org.example.bankingmanagementsystem.dto.user.UserResponseDto;
 import org.springframework.data.domain.Page;
 
 public interface AdminUserService {

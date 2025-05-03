@@ -1,4 +1,4 @@
-package org.example.bankingmanagementsystem.dto;
+package org.example.bankingmanagementsystem.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;

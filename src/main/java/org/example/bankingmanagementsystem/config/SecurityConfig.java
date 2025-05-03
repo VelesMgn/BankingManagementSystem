@@ -89,7 +89,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/cards/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/cards/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/cards/user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions

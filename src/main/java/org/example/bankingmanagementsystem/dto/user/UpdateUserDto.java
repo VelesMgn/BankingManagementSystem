@@ -1,4 +1,4 @@
-package org.example.bankingmanagementsystem.dto;
+package org.example.bankingmanagementsystem.dto.user;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

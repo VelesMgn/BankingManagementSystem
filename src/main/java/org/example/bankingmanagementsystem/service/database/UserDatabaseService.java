@@ -36,7 +36,9 @@ public class UserDatabaseService implements UserDetailsService {
                 .build();
     }
 
-    public User saveUserInDb(String email, String name, String password, Role role, PasswordEncoder passwordEncoder) {
+    public User saveUserInDb(String email, String name,
+                             String password, Role role,
+                             PasswordEncoder passwordEncoder) {
         String encodedPassword = passwordEncoder.encode(password);
 
         User user = User.builder()

@@ -1,4 +1,4 @@
-package org.example.bankingmanagementsystem.dto;
+package org.example.bankingmanagementsystem.dto.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

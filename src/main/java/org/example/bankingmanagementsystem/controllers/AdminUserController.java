@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.UpdateUserDto;
-import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
-import org.example.bankingmanagementsystem.dto.UserResponseDto;
+import org.example.bankingmanagementsystem.dto.user.UpdateUserDto;
+import org.example.bankingmanagementsystem.dto.user.UserRegistrationDto;
+import org.example.bankingmanagementsystem.dto.user.UserResponseDto;
 import org.example.bankingmanagementsystem.service.AdminUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,7 +67,8 @@ public class AdminUserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto dto) {
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable @Min(value = 1, message = "Id must be positive")
+                                                          Long id, @Valid @RequestBody UpdateUserDto dto) {
         log.info("Admin updating user with id: {}", id);
         return ResponseEntity.ok(adminUserService.updateUser(id, dto));
     }

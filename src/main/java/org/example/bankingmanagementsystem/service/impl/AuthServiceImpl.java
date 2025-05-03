@@ -2,8 +2,8 @@ package org.example.bankingmanagementsystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.JwtRequestDto;
-import org.example.bankingmanagementsystem.dto.JwtResponseDto;
+import org.example.bankingmanagementsystem.dto.jwt.JwtRequestDto;
+import org.example.bankingmanagementsystem.dto.jwt.JwtResponseDto;
 import org.example.bankingmanagementsystem.repository.UserRepository;
 import org.example.bankingmanagementsystem.service.AuthService;
 import org.example.bankingmanagementsystem.service.database.UserDatabaseService;

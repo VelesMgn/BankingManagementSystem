@@ -2,9 +2,9 @@ package org.example.bankingmanagementsystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.UpdateUserDto;
-import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
-import org.example.bankingmanagementsystem.dto.UserResponseDto;
+import org.example.bankingmanagementsystem.dto.user.UpdateUserDto;
+import org.example.bankingmanagementsystem.dto.user.UserRegistrationDto;
+import org.example.bankingmanagementsystem.dto.user.UserResponseDto;
 import org.example.bankingmanagementsystem.exception.UserAlreadyExistsException;
 import org.example.bankingmanagementsystem.model.User;
 import org.example.bankingmanagementsystem.model.enums.Role;

@@ -2,7 +2,7 @@ package org.example.bankingmanagementsystem.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.RegistrationResponseDto;
+import org.example.bankingmanagementsystem.dto.user.RegistrationResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

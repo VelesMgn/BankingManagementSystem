@@ -1,9 +1,9 @@
 package org.example.bankingmanagementsystem.controllers;
 
-import org.example.bankingmanagementsystem.dto.JwtRequestDto;
-import org.example.bankingmanagementsystem.dto.JwtResponseDto;
-import org.example.bankingmanagementsystem.dto.RegistrationResponseDto;
-import org.example.bankingmanagementsystem.dto.UserRegistrationDto;
+import org.example.bankingmanagementsystem.dto.jwt.JwtRequestDto;
+import org.example.bankingmanagementsystem.dto.jwt.JwtResponseDto;
+import org.example.bankingmanagementsystem.dto.user.RegistrationResponseDto;
+import org.example.bankingmanagementsystem.dto.user.UserRegistrationDto;
 import org.example.bankingmanagementsystem.exception.GlobalExceptionHandler;
 import org.example.bankingmanagementsystem.exception.UserAlreadyExistsException;
 import org.example.bankingmanagementsystem.exception.ValidationException;
