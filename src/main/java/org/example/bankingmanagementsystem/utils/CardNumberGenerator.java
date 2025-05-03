@@ -15,13 +15,15 @@ public class CardNumberGenerator {
     private static final int LENGTH = 16;
     private static final int MAX_ATTEMPTS = 5;
 
+    private final Random random = new Random();
+
     private final CardDatabaseService cardDatabaseService;
     private final EncryptionService encryptionService;
 
     public String generateUniqueCardNumber() {
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             String cardNumber = generateCardNumber();
-            if (!isCardNumberExists(cardNumber)) {
+            if (!doesCardNumberExist(cardNumber)) {
                 return cardNumber;
             }
             log.warn("Generated card number already exists, retrying...");
@@ -29,16 +31,15 @@ public class CardNumberGenerator {
         throw new IllegalStateException("Failed to generate unique card number after " + MAX_ATTEMPTS + " attempts");
     }
 
-    private boolean isCardNumberExists(String cardNumber) {
+    private boolean doesCardNumberExist(String cardNumber) {
         String encryptedNumber = encryptionService.encrypt(cardNumber);
         return cardDatabaseService.existsByCardNumberEncrypted(encryptedNumber);
     }
 
     private String generateCardNumber() {
-        Random random = new Random();
         StringBuilder cardNumber = new StringBuilder(BIN);
 
-        for (int i = 1; i < LENGTH - 1; i++) {
+        for (int i = 0; i < LENGTH - BIN.length() - 1; i++) {
             cardNumber.append(random.nextInt(10));
         }
 
@@ -48,13 +49,13 @@ public class CardNumberGenerator {
 
     private int calculateLuhnCheckDigit(String number) {
         int sum = 0;
-        boolean alternate = false;
+        boolean alternate = true;
         for (int i = number.length() - 1; i >= 0; i--) {
             int digit = Character.getNumericValue(number.charAt(i));
             if (alternate) {
                 digit *= 2;
                 if (digit > 9) {
-                    digit = (digit % 10) + 1;
+                    digit -= 9;
                 }
             }
             sum += digit;

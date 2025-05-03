@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AdminUserServiceImpl implements AdminUserService {
+    private final AdminCardServiceImpl adminCardService;
     private final UserDatabaseService userService;
     private final PasswordEncoder passwordEncoder;
 
@@ -32,7 +33,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public UserResponseDto getUserById(long id) {
+    public UserResponseDto getUserById(Long id) {
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
         return convertToDto(user);
@@ -56,6 +57,10 @@ public class AdminUserServiceImpl implements AdminUserService {
     public UserResponseDto createAdmin(UserRegistrationDto dto) {
         if (userService.mailIsPresent(dto.getMail())) {
             throw new UserAlreadyExistsException(dto.getMail());
+        }
+
+        if (userService.nameIsPresent(dto.getName())) {
+            throw new UserAlreadyExistsException(dto.getName());
         }
 
         String password = dto.getPassword();
@@ -94,7 +99,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .userName(user.getUserName())
-                .cards(user.getCards())
+                .bankCards(adminCardService.getBankCards(user.getId()))
                 .role(user.getRole())
                 .build();
     }

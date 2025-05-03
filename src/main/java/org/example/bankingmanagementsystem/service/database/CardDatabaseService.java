@@ -1,6 +1,7 @@
 package org.example.bankingmanagementsystem.service.database;
 
 import lombok.RequiredArgsConstructor;
+import org.example.bankingmanagementsystem.dto.card.BankCardResponseDto;
 import org.example.bankingmanagementsystem.model.BankCard;
 import org.example.bankingmanagementsystem.model.User;
 import org.example.bankingmanagementsystem.model.enums.BankCardStatus;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,22 +32,27 @@ public class CardDatabaseService {
         return cardRepository.findByUserId(userId, pageable);
     }
 
+    public List<BankCard> getAllBankCardsByUserId(Long userId) {
+        return cardRepository.findByUserId(userId);
+    }
+
     public Page<BankCard> findByStatus(BankCardStatus status, Pageable pageable) {
         return cardRepository.findByStatus(status, pageable);
     }
 
     public boolean existsByCardNumberEncrypted(String encryptedNumber) {
-        return cardRepository.findByCardNumberEncrypted(encryptedNumber);
+        return cardRepository.existsByCardNumberEncrypted(encryptedNumber);
     }
 
     public BankCard createBankCard(User user, String cardNumber,
-                                   LocalDate expiryDate, BankCardStatus status) {
+                                   LocalDate expiryDate, BankCardStatus status,
+                                   BigDecimal balance) {
         return cardRepository.save(BankCard.builder()
                 .cardNumberEncrypted(cardNumber)
                 .user(user)
                 .expiryDate(expiryDate)
                 .status(status)
-                .balance(BigDecimal.ZERO)
+                .balance(balance)
                 .build());
     }
 

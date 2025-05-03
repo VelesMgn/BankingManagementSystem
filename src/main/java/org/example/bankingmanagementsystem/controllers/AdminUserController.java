@@ -38,7 +38,10 @@ public class AdminUserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDto getUserById(@PathVariable @Min(value = 1, message = "Id must be positive") long id) {
+    public UserResponseDto getUserById(@PathVariable
+                                           @Min(value = 1, message = "Id must be positive")
+                                           @NotNull(message = "Id not be empty")
+                                           Long id) {
         log.info("Admin requested user with id: {}", id);
         return adminUserService.getUserById(id);
     }
@@ -67,8 +70,9 @@ public class AdminUserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable @Min(value = 1, message = "Id must be positive")
-                                                      Long id, @Valid @RequestBody UpdateUserDto dto) {
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable
+                                                          @Min(value = 1, message = "Id must be positive") Long id,
+                                                      @Valid @RequestBody UpdateUserDto dto) {
         log.info("Admin updating user with id: {}", id);
         return ResponseEntity.ok(adminUserService.updateUser(id, dto));
     }

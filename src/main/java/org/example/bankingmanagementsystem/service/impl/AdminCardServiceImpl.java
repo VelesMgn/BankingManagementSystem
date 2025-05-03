@@ -3,7 +3,6 @@ package org.example.bankingmanagementsystem.service.impl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.card.BankCardRequestDto;
 import org.example.bankingmanagementsystem.dto.card.BankCardResponseDto;
 import org.example.bankingmanagementsystem.model.BankCard;
 import org.example.bankingmanagementsystem.model.User;
@@ -20,7 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,28 +54,20 @@ public class AdminCardServiceImpl implements AdminCardService {
     }
 
     @Override
-    public BankCardResponseDto createCard(BankCardRequestDto dto) {
-        User user = userService.getUserById(dto.getUserId())
+    public BankCardResponseDto createCard(Long id) {
+        User user = userService.getUserById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        LocalDate expiryDate = getDate(dto);
-        String cardNumber = generatedCardNumber();
+        LocalDate expiryDate = LocalDate.now().plusYears(10);
+        String cardNumber = cardNumberGenerator.generateUniqueCardNumber();
+        String encryptedCardNumber = encryptionService.encrypt(cardNumber);
+        BigDecimal balance = BigDecimal.ZERO;
 
-        BankCard card = cardService.createBankCard(user, cardNumber,
-                expiryDate, BankCardStatus.ACTIVE);
+        BankCard card = cardService.createBankCard(user, encryptedCardNumber,
+                expiryDate, BankCardStatus.ACTIVE, balance);
 
-        log.info("Created new card {} for user {}", cardNumber, user.getId());
+        log.info("Created new card {} for user {}", encryptedCardNumber, user.getId());
         return convertToDto(card);
-    }
-
-    private LocalDate getDate(BankCardRequestDto dto) {
-        return (dto.getExpiryDate() != null)
-                ? dto.getExpiryDate()
-                : LocalDate.now().plusYears(10);
-    }
-
-    private String generatedCardNumber() {
-        return encryptionService.encrypt(cardNumberGenerator.generateUniqueCardNumber());
     }
 
     @Override
@@ -103,9 +97,16 @@ public class AdminCardServiceImpl implements AdminCardService {
         cardService.delete(card);
     }
 
+    public List<BankCardResponseDto> getBankCards(Long userId) {
+        List<BankCard> bankCards = cardService.getAllBankCardsByUserId(userId);
+        return bankCards.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     private BankCardResponseDto convertToDto(BankCard card) {
         String decryptedCardNumber = encryptionService.decrypt(card.getCardNumberEncrypted());
-        String maskedCardNumber = maskCardNumber(decryptedCardNumber);
+        String maskedCardNumber = encryptionService.maskCardNumber(decryptedCardNumber);
 
         return BankCardResponseDto.builder()
                 .id(card.getId())
@@ -115,13 +116,5 @@ public class AdminCardServiceImpl implements AdminCardService {
                 .balance(card.getBalance())
                 .userId(card.getUser().getId())
                 .build();
-    }
-
-    private String maskCardNumber(String cardNumber) {
-        if (cardNumber == null || cardNumber.length() < 4) {
-            return cardNumber;
-        }
-        String lastFour = cardNumber.substring(cardNumber.length() - 4);
-        return "**** **** **** " + lastFour;
     }
 }

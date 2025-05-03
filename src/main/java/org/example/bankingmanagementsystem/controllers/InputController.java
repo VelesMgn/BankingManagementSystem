@@ -24,7 +24,7 @@ public class InputController {
     private final AuthService authService;
 
     @PostMapping("/registration")
-    public ResponseEntity<RegistrationResponseDto> registration(@Valid @RequestBody UserRegistrationDto dto) {
+    public ResponseEntity<RegistrationResponseDto> registration(@RequestBody @Valid UserRegistrationDto dto) {
         log.info("The controller \"InputController\" calls the RegistrationService.");
         RegistrationResponseDto response = registration.registerNewUser(dto);
 
@@ -32,7 +32,7 @@ public class InputController {
     }
 
     @PostMapping("/authorization")
-    public ResponseEntity<?> authorization(@RequestBody JwtRequestDto request) {
+    public ResponseEntity<?> authorization(@RequestBody @Valid JwtRequestDto request) {
         log.info("The controller \"InputController\" calls the AuthorizationService.");
         return ResponseEntity.ok(authService.authenticateUser(request));
     }

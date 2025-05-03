@@ -7,13 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface BankCardRepository extends JpaRepository<BankCard, Long> {
     Page<BankCard> findByUserId(Long userId, Pageable pageable);
+    List<BankCard> findByUserId(Long userId);
     Page<BankCard> findByStatus(BankCardStatus status, Pageable pageable);
     Page<BankCard> findByUserIdAndStatus(Long userId, BankCardStatus status, Pageable pageable);
 
-    boolean findByCardNumberEncrypted(String cardNumberEncrypted);
+    boolean existsByCardNumberEncrypted(String cardNumberEncrypted);
 }

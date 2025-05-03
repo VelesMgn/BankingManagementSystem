@@ -1,10 +1,8 @@
 package org.example.bankingmanagementsystem.controllers;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bankingmanagementsystem.dto.card.BankCardRequestDto;
 import org.example.bankingmanagementsystem.dto.card.BankCardResponseDto;
 import org.example.bankingmanagementsystem.model.enums.BankCardStatus;
 import org.example.bankingmanagementsystem.service.AdminCardService;
@@ -35,10 +33,12 @@ public class AdminCardController {
         return ResponseEntity.ok(cardService.getAllCards(page, size, userId, status));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<BankCardResponseDto> createCard(@Valid @RequestBody BankCardRequestDto dto) {
-        log.info("Admin creating new card for user {}", dto.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(dto));
+    @PostMapping("/create/{id}")
+    public ResponseEntity<BankCardResponseDto> createCard(@PathVariable
+                                                              @Min(value = 1, message = "Id must be positive")
+                                                              Long id) {
+        log.info("Admin creating new card for user {}", id);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(id));
     }
 
     @PatchMapping("/{cardId}/block")
@@ -47,7 +47,7 @@ public class AdminCardController {
         return ResponseEntity.ok(cardService.changeCardStatus(cardId, BankCardStatus.BLOCKED));
     }
 
-    @PatchMapping("/{cardId}/activate")
+        @PatchMapping("/{cardId}/activate")
     public ResponseEntity<BankCardResponseDto> activateCard(@PathVariable Long cardId) {
         log.info("Admin activating card {}", cardId);
         return ResponseEntity.ok(cardService.changeCardStatus(cardId, BankCardStatus.ACTIVE));
@@ -59,5 +59,4 @@ public class AdminCardController {
         cardService.deleteCard(cardId);
         return ResponseEntity.noContent().build();
     }
-
 }
