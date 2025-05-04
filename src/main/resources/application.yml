@@ -2,13 +2,12 @@ server:
   port: 8080
 
 spring:
-  application.name: BankingManagementSystem
-  config:
-    import: classpath:config.yml
+  profiles:
+    active: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/banking_management?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -19,7 +18,6 @@ spring:
         format_sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-    enabled: true
 
 springdoc:
   cache:

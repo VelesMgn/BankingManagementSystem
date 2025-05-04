@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  wallet-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://wallet-db:3306/banking_management?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_TIME=${JWT_TIME}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - ADMIN_MAIL=${ADMIN_MAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_NAME=${ADMIN_NAME}
+    depends_on:
+      wallet-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  wallet-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=banking_management
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - wallet-db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  wallet-db-data:
