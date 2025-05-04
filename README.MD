@@ -7,7 +7,7 @@
 **Технологический стек**:  
 | `Java 17` | `Spring Boot` | `MySQL` | `Hibernate` | 
 `Spring Security` | `JWT` | `Liquibase` | `Docker` | 
-`Maven` | `Lombok` | `Swagger` |
+`Maven` | `Lombok` | `Swagger` | `JUnit` |
 
 Безопасная backend-система для управления банковскими картами с:
 - Полноценной аутентификацией
