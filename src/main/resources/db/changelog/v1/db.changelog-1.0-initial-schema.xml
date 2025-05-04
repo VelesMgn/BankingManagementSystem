@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="1" author="Vladimir_Stolyarov">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <comment>Создание таблицы пользователей</comment>
+        <createTable tableName="user" remarks="Таблица пользователей системы">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Уникальный идентификатор">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(320)" remarks="Электронная почта">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)" remarks="Хэш пароля">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(20)" remarks="Роль пользователя">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_name" type="VARCHAR(100)" remarks="Имя пользователя">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="user"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2" author="Vladimir_Stolyarov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="user"/>
+            <not>
+                <tableExists tableName="bank_card"/>
+            </not>
+        </preConditions>
+        <comment>Создание таблицы банковских карт</comment>
+        <createTable tableName="bank_card" remarks="Таблица банковских карт">
+            <column name="id" type="BIGINT" autoIncrement="true" remarks="Уникальный идентификатор">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="card_number_encrypted" type="VARCHAR(255)" remarks="Зашифрованный номер карты">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT" remarks="Ссылка на пользователя">
+                <constraints nullable="false" foreignKeyName="fk_bank_card_user"
+                             referencedTableName="user" referencedColumnNames="id"/>
+            </column>
+            <column name="expiry_date" type="DATE" remarks="Дата истечения срока">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" remarks="Текущий статус карты">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="DECIMAL(19,2)" remarks="Баланс карты">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="bank_card"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="3" author="Vladimir_Stolyarov">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="bank_card"/>
+            <tableExists tableName="user"/>
+        </preConditions>
+        <comment>Добавление индексов для улучшения производительности</comment>
+
+        <createIndex tableName="bank_card" indexName="idx_bank_card_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="bank_card" indexName="idx_bank_card_status">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex tableName="user" indexName="idx_user_email">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex tableName="user" indexName="idx_user_role">
+            <column name="role"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="bank_card" indexName="idx_bank_card_user_id"/>
+            <dropIndex tableName="bank_card" indexName="idx_bank_card_status"/>
+            <dropIndex tableName="user" indexName="idx_user_email"/>
+            <dropIndex tableName="user" indexName="idx_user_role"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

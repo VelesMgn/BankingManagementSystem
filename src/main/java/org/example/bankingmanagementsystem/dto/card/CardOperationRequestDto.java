@@ -2,6 +2,7 @@ package org.example.bankingmanagementsystem.dto.card;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.Getter;
 import org.example.bankingmanagementsystem.model.enums.OperationType;
 import org.example.bankingmanagementsystem.config.ValidationConstants;
@@ -9,6 +10,7 @@ import org.example.bankingmanagementsystem.config.ValidationConstants;
 import java.math.BigDecimal;
 
 @Getter
+@Data
 public class CardOperationRequestDto {
     @NotNull(message = ValidationConstants.ID_NOT_NULL_MESSAGE)
     private Long userId;

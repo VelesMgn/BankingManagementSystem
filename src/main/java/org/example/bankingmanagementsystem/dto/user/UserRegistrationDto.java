@@ -1,5 +1,7 @@
 package org.example.bankingmanagementsystem.dto.user;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.example.bankingmanagementsystem.config.ValidationConstants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
@@ -8,6 +10,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserRegistrationDto {
     @NotBlank(message = ValidationConstants.EMAIL_NOT_BLANK_MESSAGE)
     @Email(message = ValidationConstants.EMAIL_VALID_MESSAGE)

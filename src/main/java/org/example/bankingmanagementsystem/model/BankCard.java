@@ -12,7 +12,11 @@ import java.time.LocalDate;
 @Getter @Setter
 @Builder
 @Entity
-@Table(name = "bank_card")
+@Table(name = "bank_card",
+        indexes = {
+                @Index(name = "idx_bank_card_user_id", columnList = "user_id"),
+                @Index(name = "idx_bank_card_status", columnList = "status")
+        })
 public class BankCard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +33,7 @@ public class BankCard {
     private LocalDate expiryDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status",
-            columnDefinition = "ENUM('ACTIVE', 'BLOCKED', 'EXPIRED')",
-            nullable = false)
+    @Column(columnDefinition = "ENUM('ACTIVE', 'BLOCKED', 'EXPIRED')")
     private BankCardStatus status;
 
     @Column(nullable = false)

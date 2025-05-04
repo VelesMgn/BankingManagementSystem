@@ -1,24 +1,29 @@
 openapi: 3.0.1
 info:
-  title: API аутентификации пользователей
-  description: API для регистрации и аутентификации пользователей с использованием JWT
+  title: API аутентификации
+  description: Документация для регистрации и входа
   version: 1.0.0
+externalDocs:
+  description: Дополнительная документация
+  url: resources/static/openapi.yml
 servers:
   - url: http://localhost:8080
-    description: Локальный сервер
+    description: Локальный сервер разработки
 tags:
   - name: Аутентификация
-    description: Операции для входа пользователя
-  - name: Регистрация
-    description: Операции для регистрации новых пользователей
-
+    description: Операции регистрации и входа
+  - name: Пользователи (Админ)
+    description: Управление пользователями (только для администраторов)
+  - name: Карты (Админ)
+    description: Управление банковскими картами (только для администраторов)
+  - name: Карты (Пользователь)
+    description: Операции с банковскими картами (для пользователей)
 paths:
   /api/registration:
     post:
       tags:
-        - Регистрация
+        - Аутентификация
       summary: Регистрация нового пользователя
-      description: Создает нового пользователя в системе
       requestBody:
         required: true
         content:
@@ -33,24 +38,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/RegistrationResponseDto'
         '400':
-          description: Неверный запрос (ошибки валидации или пользователь уже существует)
+          description: Неверные входные данные
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegistrationResponseDto'
-        '500':
-          description: Внутренняя ошибка сервера
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegistrationResponseDto'
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/authorization:
     post:
       tags:
         - Аутентификация
-      summary: Аутентификация пользователя
-      description: Аутентифицирует пользователя и возвращает JWT токен
+      summary: Авторизация пользователя
       requestBody:
         required: true
         content:
@@ -59,19 +56,780 @@ paths:
               $ref: '#/components/schemas/JwtRequestDto'
       responses:
         '200':
-          description: Успешная аутентификация
+          description: Успешная авторизация
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JwtResponseDto'
         '401':
-          description: Неавторизован (неверные учетные данные или пользователь не найден)
+          description: Неверные учетные данные
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppError'
-
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/get-all:
+    get:
+      tags:
+        - Пользователи (Админ)
+      summary: Получить всех пользователей (пагинация)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Размер страницы (1-100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponseDto'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/{id}:
+    get:
+      tags:
+        - Пользователи (Админ)
+      summary: Получить пользователя по ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Пользователи (Админ)
+      summary: Обновить информацию о пользователе
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: Информация о пользователе обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Пользователи (Админ)
+      summary: Удалить пользователя
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Пользователь удален
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/by-email:
+    get:
+      tags:
+        - Пользователи (Админ)
+      summary: Получить пользователя по email
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+            maxLength: 255
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/by-username:
+    get:
+      tags:
+        - Пользователи (Админ)
+      summary: Получить пользователя по имени пользователя
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 50
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/create-admin:
+    post:
+      tags:
+        - Пользователи (Админ)
+      summary: Создать нового администратора
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationDto'
+      responses:
+        '201':
+          description: Администратор создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/admin/get-all:
+    get:
+      tags:
+        - Карты (Админ)
+      summary: Получить все карты (с фильтрацией)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Размер страницы (1-100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: userId
+          in: query
+          description: ID пользователя для фильтрации
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: status
+          in: query
+          description: Статус карты для фильтрации
+          required: false
+          schema:
+            $ref: '#/components/schemas/BankCardStatus'
+      responses:
+        '200':
+          description: Список карт
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BankCardResponseDto'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/admin/create/{userId}:
+    post:
+      tags:
+        - Карты (Админ)
+      summary: Создать новую карту для пользователя
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '201':
+          description: Карта создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/admin/{cardId}/block:
+    patch:
+      tags:
+        - Карты (Админ)
+      summary: Заблокировать карту
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Карта заблокирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/admin/{cardId}/activate:
+    patch:
+      tags:
+        - Карты (Админ)
+      summary: Активировать карту
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Карта активирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/admin/{cardId}:
+    delete:
+      tags:
+        - Карты (Админ)
+      summary: Удалить карту
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Карта удалена
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/user/operations:
+    post:
+      tags:
+        - Карты (Пользователь)
+      summary: Выполнить операцию с картой (пополнение/снятие)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardOperationRequestDto'
+      responses:
+        '200':
+          description: Операция выполнена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные или недостаточно средств
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/user/get-balance:
+    get:
+      tags:
+        - Карты (Пользователь)
+      summary: Получить баланс карт пользователя
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Размер страницы (1-100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Список карт с балансами
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карты не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/user/block:
+    post:
+      tags:
+        - Карты (Пользователь)
+      summary: Заблокировать свою карту
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: cardId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Карта заблокирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/cards/user/transfer:
+    post:
+      tags:
+        - Карты (Пользователь)
+      summary: Перевод между картами
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: fromCardId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: toCardId
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: decimal
+            minimum: 0.01
+      responses:
+        '200':
+          description: Перевод выполнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCardResponseDto'
+        '400':
+          description: Неверные входные данные или недостаточно средств
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Нет прав доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     UserRegistrationDto:
       type: object
@@ -83,34 +841,21 @@ components:
         mail:
           type: string
           format: email
-          description: Электронная почта пользователя
+          maxLength: 255
+          description: Email пользователя
           example: user@example.com
         password:
           type: string
-          format: password
-          description: Пароль пользователя (6-50 символов)
-          example: securePassword123
           minLength: 6
           maxLength: 50
+          description: Пароль пользователя
+          example: securePassword123
         name:
           type: string
-          description: Имя пользователя (2-50 символов)
-          example: Ivan Ivanov
           minLength: 2
           maxLength: 50
-
-    RegistrationResponseDto:
-      type: object
-      properties:
-        result:
-          type: boolean
-          description: Результат операции
-          example: true
-        message:
-          type: string
-          description: Сообщение о результате
-          example: "User with email: user@example.com created"
-
+          description: Имя пользователя
+          example: Иван Иванов
     JwtRequestDto:
       type: object
       required:
@@ -120,37 +865,149 @@ components:
         mail:
           type: string
           format: email
-          description: Электронная почта пользователя
+          description: Email пользователя
           example: user@example.com
         password:
           type: string
-          format: password
           description: Пароль пользователя
           example: securePassword123
-
     JwtResponseDto:
       type: object
       properties:
         token:
           type: string
-          description: JWT токен для аутентификации
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-    AppError:
+          description: JWT токен
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    RegistrationResponseDto:
       type: object
       properties:
-        statusCode:
-          type: integer
-          description: Код статуса HTTP
-          example: 401
+        result:
+          type: boolean
+          description: Результат регистрации
+          example: true
         message:
           type: string
+          description: Сообщение о результате
+          example: User with email - user@example.com created
+    UserResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID пользователя
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+          example: user@example.com
+        userName:
+          type: string
+          description: Имя пользователя
+          example: Иван Иванов
+        bankCards:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankCardResponseDto'
+          description: Список банковских карт пользователя
+        role:
+          $ref: '#/components/schemas/Role'
+    UpdateUserDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Новое имя пользователя
+          example: Новое Имя
+        role:
+          $ref: '#/components/schemas/Role'
+    BankCardResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID карты
+          example: 1
+        maskedCardNumber:
+          type: string
+          description: Маскированный номер карты
+          example: "**** **** **** 1234"
+        userId:
+          type: integer
+          description: ID владельца карты
+          example: 1
+        expiryDate:
+          type: string
+          format: date
+          description: Дата истечения срока действия
+          example: "2025-12-31"
+        status:
+          $ref: '#/components/schemas/BankCardStatus'
+        balance:
+          type: number
+          format: decimal
+          description: Баланс карты
+          example: 1000.50
+    CardOperationRequestDto:
+      type: object
+      required:
+        - userId
+        - cardId
+        - operationType
+        - amount
+      properties:
+        userId:
+          type: integer
+          minimum: 1
+          description: ID пользователя
+          example: 1
+        cardId:
+          type: integer
+          minimum: 1
+          description: ID карты
+          example: 1
+        operationType:
+          $ref: '#/components/schemas/OperationType'
+        amount:
+          type: number
+          format: decimal
+          minimum: 0.01
+          description: Сумма операции
+          example: 100.50
+    BankCardStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - BLOCKED
+        - EXPIRED
+      description: Статус банковской карты
+      example: ACTIVE
+    OperationType:
+      type: string
+      enum:
+        - DEPOSIT
+        - WITHDRAW
+      description: Тип операции с картой
+      example: DEPOSIT
+    Role:
+      type: string
+      enum:
+        - ROLE_USER
+        - ROLE_ADMIN
+      description: Роль пользователя
+      example: ROLE_USER
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Код ошибки
+          example: VALIDATION_ERROR
+        errorMessage:
+          type: string
           description: Сообщение об ошибке
-          example: "Invalid username or password"
-
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Введите JWT токен в формате 'Bearer {token}'
+          example: Email should be valid
+security:
+  - bearerAuth: []

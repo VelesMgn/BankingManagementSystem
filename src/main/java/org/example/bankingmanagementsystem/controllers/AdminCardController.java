@@ -59,7 +59,7 @@ public class AdminCardController {
         return ResponseEntity.ok(cardService.changeCardStatus(cardId, BankCardStatus.BLOCKED));
     }
 
-        @PatchMapping("/{cardId}/activate")
+    @PatchMapping("/{cardId}/activate")
     public ResponseEntity<BankCardResponseDto> activateCard(
                 @PathVariable @NotNull(message = ValidationConstants.ID_NOT_NULL_MESSAGE)
                 @Positive(message = ValidationConstants.ID_POSITIVE_MESSAGE) Long cardId) {

@@ -9,7 +9,11 @@ import org.example.bankingmanagementsystem.model.enums.Role;
 @Getter @Setter
 @Builder
 @Entity
-@Table(name = "user")
+@Table(name = "user",
+        indexes = {
+                @Index(name = "idx_user_email", columnList = "email"),
+                @Index(name = "idx_user_role", columnList = "role")
+        })
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +26,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role",
-            columnDefinition = "ENUM('ROLE_USER', 'ROLE_ADMIN')",
-            nullable = false)
+    @Column(columnDefinition = "ENUM('ROLE_USER', 'ROLE_ADMIN')")
     private Role role;
 
     @Column(name = "user_name", nullable = false)
