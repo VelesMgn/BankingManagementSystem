@@ -5,7 +5,7 @@
 ## 📌 Обзор
 
 **Технологический стек**:  
-| `Java 17` | `Spring Boot` | `PostgreSQL` | `Hibernate` | 
+| `Java 17` | `Spring Boot` | `MySQL` | `Hibernate` | 
 `Spring Security` | `JWT` | `Liquibase` | `Docker` | 
 `Maven` | `Lombok` | `Swagger` |
 
