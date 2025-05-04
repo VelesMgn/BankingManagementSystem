@@ -10,14 +10,15 @@ import org.example.bankingmanagementsystem.model.enums.BankCardStatus;
 import org.example.bankingmanagementsystem.service.AdminCardService;
 import org.example.bankingmanagementsystem.service.database.CardDatabaseService;
 import org.example.bankingmanagementsystem.service.database.UserDatabaseService;
+import org.example.bankingmanagementsystem.service.utils.AbstractConverter;
 import org.example.bankingmanagementsystem.utils.CardNumberGenerator;
-import org.example.bankingmanagementsystem.utils.EncryptionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,12 +28,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminCardServiceImpl implements AdminCardService {
+public class AdminCardServiceImpl extends AbstractConverter implements AdminCardService {
     private final CardNumberGenerator cardNumberGenerator;
-    private final EncryptionService encryptionService;
     private final CardDatabaseService cardService;
     private final UserDatabaseService userService;
-
 
     @Override
     public Page<BankCardResponseDto> getAllCards(int page, int size,
@@ -60,7 +59,7 @@ public class AdminCardServiceImpl implements AdminCardService {
 
         LocalDate expiryDate = LocalDate.now().plusYears(10);
         String cardNumber = cardNumberGenerator.generateUniqueCardNumber();
-        String encryptedCardNumber = encryptionService.encrypt(cardNumber);
+        String encryptedCardNumber = getEncryptedNumber(cardNumber);
         BigDecimal balance = BigDecimal.ZERO;
 
         BankCard card = cardService.createBankCard(user, encryptedCardNumber,
@@ -71,6 +70,7 @@ public class AdminCardServiceImpl implements AdminCardService {
     }
 
     @Override
+    @Transactional
     public BankCardResponseDto changeCardStatus(Long cardId, BankCardStatus newStatus) {
         BankCard card = cardService.findById(cardId)
                 .orElseThrow(() -> new EntityNotFoundException("Card not found"));
@@ -102,19 +102,5 @@ public class AdminCardServiceImpl implements AdminCardService {
         return bankCards.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
-    }
-
-    private BankCardResponseDto convertToDto(BankCard card) {
-        String decryptedCardNumber = encryptionService.decrypt(card.getCardNumberEncrypted());
-        String maskedCardNumber = encryptionService.maskCardNumber(decryptedCardNumber);
-
-        return BankCardResponseDto.builder()
-                .id(card.getId())
-                .maskedCardNumber(maskedCardNumber)
-                .expiryDate(card.getExpiryDate())
-                .status(card.getStatus())
-                .balance(card.getBalance())
-                .userId(card.getUser().getId())
-                .build();
     }
 }

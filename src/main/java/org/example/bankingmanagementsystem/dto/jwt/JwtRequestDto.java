@@ -1,17 +1,18 @@
 package org.example.bankingmanagementsystem.dto.jwt;
 
+import org.example.bankingmanagementsystem.config.ValidationConstants;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class JwtRequestDto {
-    @NotBlank(message = "Mail cannot be empty")
-    @Email(message = "Mail should be valid")
+    @NotBlank(message = ValidationConstants.EMAIL_NOT_BLANK_MESSAGE)
+    @Email(message = ValidationConstants.EMAIL_VALID_MESSAGE)
     private String mail;
 
-    @NotBlank(message = "Password cannot be empty")
+    @NotBlank(message = ValidationConstants.PASSWORD_NOT_BLANK_MESSAGE)
     private String password;
 }

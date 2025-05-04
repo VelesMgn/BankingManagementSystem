@@ -1,7 +1,6 @@
 package org.example.bankingmanagementsystem.service.database;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bankingmanagementsystem.dto.card.BankCardResponseDto;
 import org.example.bankingmanagementsystem.model.BankCard;
 import org.example.bankingmanagementsystem.model.User;
 import org.example.bankingmanagementsystem.model.enums.BankCardStatus;
@@ -9,6 +8,7 @@ import org.example.bankingmanagementsystem.repository.BankCardRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CardDatabaseService {
     private final BankCardRepository cardRepository;
@@ -44,6 +45,7 @@ public class CardDatabaseService {
         return cardRepository.existsByCardNumberEncrypted(encryptedNumber);
     }
 
+    @Transactional
     public BankCard createBankCard(User user, String cardNumber,
                                    LocalDate expiryDate, BankCardStatus status,
                                    BigDecimal balance) {
@@ -60,11 +62,17 @@ public class CardDatabaseService {
         return cardRepository.findById(cardId);
     }
 
+    @Transactional
     public BankCard save(BankCard card) {
         return cardRepository.save(card);
     }
 
+    @Transactional
     public void delete(BankCard card) {
         cardRepository.delete(card);
+    }
+
+    public Optional<BankCard> findByIdAndUserId(Long userId, Long cardId) {
+        return cardRepository.findByIdAndUserId(userId, cardId);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.bankingmanagementsystem.dto.user;
 
+import org.example.bankingmanagementsystem.config.ValidationConstants;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
@@ -9,8 +10,9 @@ import org.example.bankingmanagementsystem.model.enums.Role;
 
 @Data
 public class UpdateUserDto {
-    @NotBlank(message = "Name cannot be empty")
-    @Size(min = 2, max = 50, message = "User name should be between 2 and 50 characters")
+    @NotBlank(message = ValidationConstants.USERNAME_NOT_BLANK_MESSAGE)
+    @Size(min = ValidationConstants.USERNAME_MIN_SIZE, max = ValidationConstants.USERNAME_MAX_SIZE,
+            message = ValidationConstants.USERNAME_SIZE_MESSAGE)
     private String name;
 
     @Enumerated(EnumType.STRING)

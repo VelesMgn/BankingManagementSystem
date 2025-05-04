@@ -1,5 +1,6 @@
 package org.example.bankingmanagementsystem.dto.user;
 
+import org.example.bankingmanagementsystem.config.ValidationConstants;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,16 +9,18 @@ import lombok.Data;
 
 @Data
 public class UserRegistrationDto {
-    @NotBlank(message = "Mail cannot be empty")
-    @Email(message = "Mail should be valid")
+    @NotBlank(message = ValidationConstants.EMAIL_NOT_BLANK_MESSAGE)
+    @Email(message = ValidationConstants.EMAIL_VALID_MESSAGE)
     private String mail;
 
-    @NotBlank(message = "Password cannot be empty")
-    @Size(min = 6, max = 50, message = "Password should be between 6 and 50 characters")
+    @NotBlank(message = ValidationConstants.PASSWORD_NOT_BLANK_MESSAGE)
+    @Size(min = ValidationConstants.PASSWORD_MIN_SIZE, max = ValidationConstants.PASSWORD_MAX_SIZE,
+            message = ValidationConstants.PASSWORD_SIZE_MESSAGE)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @NotBlank(message = "User name cannot be empty")
-    @Size(min = 2, max = 50, message = "User name should be between 2 and 50 characters")
+    @NotBlank(message = ValidationConstants.USERNAME_NOT_BLANK_MESSAGE)
+    @Size(min = ValidationConstants.USERNAME_MIN_SIZE, max = ValidationConstants.USERNAME_MAX_SIZE,
+            message = ValidationConstants.USERNAME_SIZE_MESSAGE)
     private String name;
 }

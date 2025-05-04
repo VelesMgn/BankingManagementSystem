@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.bankingmanagementsystem.model.enums.Role;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
@@ -28,9 +26,6 @@ public class User {
             columnDefinition = "ENUM('ROLE_USER', 'ROLE_ADMIN')",
             nullable = false)
     private Role role;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<BankCard> cards;
 
     @Column(name = "user_name", nullable = false)
     private String userName;

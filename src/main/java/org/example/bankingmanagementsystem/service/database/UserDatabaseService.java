@@ -18,12 +18,12 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserDatabaseService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
     public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {
         User user = findUserByEmail(mail).orElseThrow(() -> new UsernameNotFoundException(
                 String.format("User not found with mail: %s", mail)
@@ -36,6 +36,7 @@ public class UserDatabaseService implements UserDetailsService {
                 .build();
     }
 
+    @Transactional
     public User saveUserInDb(String email, String name,
                              String password, Role role,
                              PasswordEncoder passwordEncoder) {
@@ -81,10 +82,12 @@ public class UserDatabaseService implements UserDetailsService {
         return userRepository.findById(id);
     }
 
+    @Transactional
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
 
+    @Transactional
     public User updateUser(User user) {
         return userRepository.save(user);
     }
